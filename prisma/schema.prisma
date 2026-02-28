@@ -1,0 +1,214 @@
+// Prisma Schema for Product Discovery Hub
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  bio           String?
+  website       String?
+  twitter       String?
+  linkedin      String?
+  role          Role      @default(USER)
+  isPremium     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  products      Product[]
+  votes         Vote[]
+  comments      Comment[]
+  followers     Follow[]  @relation("Following")
+  following     Follow[]  @relation("Followers")
+
+  @@index([email])
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  name            String
+  tagline         String
+  description     String    @db.Text
+  website         String
+  logo            String?
+  thumbnail       String?
+  images          String[]
+  category        Category  @relation(fields: [categoryId], references: [id])
+  categoryId      String
+  tags            String[]
+  
+  // Localization
+  locale          String    @default("en")
+  
+  // Status
+  status          ProductStatus @default(PENDING)
+  featured        Boolean   @default(false)
+  sponsored       Boolean   @default(false)
+  
+  // Launch details
+  launchDate      DateTime  @default(now())
+  
+  // Regional
+  region          String?   // e.g., "US", "CA", "MX"
+  city            String?
+  
+  // Social links
+  twitterUrl      String?
+  facebookUrl     String?
+  linkedinUrl     String?
+  
+  // Pricing
+  pricingType     PricingType @default(FREE)
+  price           Float?
+  
+  // Statistics
+  votesCount      Int       @default(0)
+  commentsCount   Int       @default(0)
+  viewsCount      Int       @default(0)
+  
+  // Relations
+  maker           User      @relation(fields: [makerId], references: [id], onDelete: Cascade)
+  makerId         String
+  votes           Vote[]
+  comments        Comment[]
+  events          Event[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([makerId])
+  @@index([status])
+  @@index([launchDate])
+  @@index([featured])
+  @@index([region])
+  @@index([locale])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  color       String?
+  order       Int       @default(0)
+  
+  products    Product[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@index([userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  location    String?
+  virtual     Boolean  @default(false)
+  eventUrl    String?
+  
+  // Regional info
+  region      String?
+  city        String?
+  timezone    String?
+  
+  // Featured products
+  products    Product[]
+  
+  // Images
+  image       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startDate])
+  @@index([region])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
+  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  
+  @@index([email])
+}
+
+enum Role {
+  USER
+  MAKER
+  ADMIN
+}
+
+enum ProductStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum PricingType {
+  FREE
+  FREEMIUM
+  PAID
+  SUBSCRIPTION
+  ONE_TIME
+}
