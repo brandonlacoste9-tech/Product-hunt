@@ -3,9 +3,10 @@
 > A complete, battle-tested platform for discovering and launching products across North America
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Next.js](https://img.shields.io/badge/Next.js-14.1-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.0.8-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.9-2D3748)](https://www.prisma.io/)
+[![Security](https://img.shields.io/badge/Security-Patched-green)](https://github.com/advisories)
 
 ## 🎯 Overview
 
