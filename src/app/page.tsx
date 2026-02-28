@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { TrendingUp, Sparkles, Calendar, MapPin, Search, Menu } from 'lucide-react'
+import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
 
 export default function HomePage() {
   return (
@@ -119,6 +120,11 @@ export default function HomePage() {
             region="US"
           />
         </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="container mx-auto px-4 py-16">
+        <NewsletterSignup variant="card" />
       </section>
 
       {/* CTA Section */}
